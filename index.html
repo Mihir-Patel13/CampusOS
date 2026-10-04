@@ -339,7 +339,63 @@
     .topbar-right {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
+    }
+
+    /* Cloud DB Indicator */
+    .db-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .db-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--text-faint);
+    }
+
+    .db-badge.connected {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: var(--color-success-bg);
+      color: var(--color-success);
+    }
+    .db-badge.connected .db-dot {
+      background-color: var(--color-success);
+      box-shadow: 0 0 8px var(--color-success);
+    }
+
+    .db-badge.syncing {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+    }
+    .db-badge.syncing .db-dot {
+      background-color: var(--color-warning);
+      animation: pulseDot 1s infinite alternate;
+    }
+
+    .db-badge.error {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+    }
+    .db-badge.error .db-dot {
+      background-color: var(--color-danger);
+    }
+
+    @keyframes pulseDot {
+      from { opacity: 0.4; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1.15); }
     }
 
     .live-clock {
@@ -1384,7 +1440,7 @@
           </div>
           <div class="brand-text">
             <span class="brand-title">Campus<span class="accent-text">OS</span></span>
-            <span class="brand-tag">Command Center</span>
+            <span class="brand-tag">Cloud Connected</span>
           </div>
         </div>
         <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close menu">
@@ -1422,7 +1478,7 @@
           <div class="student-avatar" id="sidebarAvatar">?</div>
           <div class="student-meta">
             <p class="student-name" id="sidebarStudentName">Student</p>
-            <p class="student-institution" id="sidebarStudentMeta">Semester 1</p>
+            <p class="student-institution" id="sidebarStudentMeta">Student Profile</p>
           </div>
           <button class="logout-btn-mini" id="sidebarLogoutBtn" title="Switch User / Logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -1448,6 +1504,12 @@
         </div>
 
         <div class="topbar-right">
+          <!-- Live Cloud DB Status Indicator -->
+          <div class="db-badge" id="dbStatusBadge" title="Neon Cloud PostgreSQL connection state">
+            <span class="db-dot"></span>
+            <span id="dbStatusText">Connecting Cloud...</span>
+          </div>
+
           <div class="live-clock">
             <i class="fa-regular fa-clock"></i>
             <span id="liveClockText">--:--:--</span>
@@ -1641,7 +1703,7 @@
           <div class="view-header">
             <div>
               <h1 class="view-title">Courses & Academic Progress</h1>
-              <p class="view-description">Semester 1 subjects and custom courses tracked with dynamic completion.</p>
+              <p class="view-description">Track Semester 1 subjects or add your own electives to monitor progress.</p>
             </div>
             <button class="btn btn-primary" id="openAddCourseModalBtn">
               <i class="fa-solid fa-folder-plus"></i> Add Course
@@ -1689,7 +1751,7 @@
       <!-- LOGIN FORM -->
       <form id="loginForm" class="modal-form">
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-          Log into your password-protected Student Command Center.
+          Log into your account. All data synchronizes with your cloud database.
         </p>
 
         <div class="registered-accounts-box" id="regAccountsBox">
@@ -1717,7 +1779,7 @@
       <!-- REGISTRATION FORM -->
       <form id="registerForm" class="modal-form" style="display: none;">
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-          Create a student profile with isolated local task and event storage.
+          Create a student profile. Your records sync to the cloud database across all your devices.
         </p>
 
         <div class="form-group">
@@ -1732,7 +1794,7 @@
           </div>
           <div class="form-group half">
             <label for="regSem" class="form-label">Semester / Term <span class="required">*</span></label>
-            <input type="text" id="regSem" class="form-control" placeholder="e.g., Semester 1" value="Semester 1" required>
+            <input type="text" id="regSem" class="form-control" placeholder="e.g., Semester 1" required>
           </div>
         </div>
 
@@ -1768,7 +1830,7 @@
         
         <div class="form-group">
           <label for="taskTitle" class="form-label">Task Title <span class="required">*</span></label>
-          <input type="text" id="taskTitle" class="form-control" placeholder="e.g., Complete Drawing Sheet 3" required>
+          <input type="text" id="taskTitle" class="form-control" placeholder="e.g., Complete Problem Set 3" required>
         </div>
 
         <div class="form-row">
@@ -1848,7 +1910,7 @@
           </div>
           <div class="form-group half">
             <label for="eventNote" class="form-label">Motivational Note</label>
-            <input type="text" id="eventNote" class="form-control" placeholder="e.g., Let's win this hackathon!">
+            <input type="text" id="eventNote" class="form-control" placeholder="e.g., Ready to conquer this milestone!">
           </div>
         </div>
 
@@ -1870,13 +1932,13 @@
       <form id="courseForm" class="modal-form">
         <div class="form-group">
           <label for="courseName" class="form-label">Course Name <span class="required">*</span></label>
-          <input type="text" id="courseName" class="form-control" placeholder="e.g., Mathematics-1" required>
+          <input type="text" id="courseName" class="form-control" placeholder="e.g., Data Structures or Physics" required>
         </div>
 
         <div class="form-row">
           <div class="form-group half">
             <label for="courseCode" class="form-label">Course Code <span class="required">*</span></label>
-            <input type="text" id="courseCode" class="form-control" placeholder="e.g., MATH-101" required>
+            <input type="text" id="courseCode" class="form-control" placeholder="e.g., CS-201" required>
           </div>
           <div class="form-group half">
             <label for="courseInstructor" class="form-label">Instructor</label>
@@ -1908,7 +1970,7 @@
         <input type="hidden" id="noteId">
         <div class="form-group">
           <label for="noteTitle" class="form-label">Note Title <span class="required">*</span></label>
-          <input type="text" id="noteTitle" class="form-control" placeholder="e.g., Chemistry Lab Experiment Notes" required>
+          <input type="text" id="noteTitle" class="form-control" placeholder="e.g., Quick Formula Sheet" required>
         </div>
 
         <div class="form-group">
@@ -1924,24 +1986,108 @@
     </div>
   </div>
 
-  <script>
-    // SEMESTER 1 PRE-CONFIGURED ENGINEERING SUBJECTS
-    const SEMESTER_1_SUBJECTS = [
-      { name: "Eng. Graphics", code: "EG", instructor: "Faculty EG", baseProgress: 0 },
-      { name: "Eng. Chemistry", code: "ENG_CHEM", instructor: "Faculty Chem", baseProgress: 0 },
-      { name: "TCS", code: "TCS", instructor: "Faculty TCS", baseProgress: 0 },
-      { name: "IKS", code: "IKS", instructor: "Faculty IKS", baseProgress: 0 },
-      { name: "EC", code: "EC", instructor: "Faculty EC", baseProgress: 0 },
-      { name: "BOE", code: "BOE", instructor: "Faculty BOE", baseProgress: 0 },
-      { name: "Material Science", code: "MS", instructor: "Faculty MS", baseProgress: 0 }
-    ];
+  <script type="module">
+    import { neon } from 'https://esm.sh/@neondatabase/serverless@0.10.4';
 
-    const sanitizeKey = (str) => {
-      if (!str) return '';
-      return str.trim().replace(/\s+/g, ' ').toLowerCase();
+    // Provided Neon Database connection string
+    const NEON_DATABASE_URL = 'postgresql://neondb_owner:npg_ska9jJBpuz2t@ep-calm-boat-b7kijyx0-pooler.c-13.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require';
+    
+    // Connect HTTP client for browser execution
+    const sql = neon(NEON_DATABASE_URL);
+
+    // Helpers
+    const sanitizeKey = (str) => (!str ? '' : str.trim().replace(/\s+/g, ' ').toLowerCase());
+
+    const updateDbStatus = (status, text) => {
+      const badge = document.getElementById('dbStatusBadge');
+      const textEl = document.getElementById('dbStatusText');
+      if (!badge || !textEl) return;
+      badge.className = `db-badge ${status}`;
+      textEl.textContent = text;
     };
 
-    // 1. STORAGE & MULTI-USER ISOLATION ENGINE
+    // 1. DATABASE SCHEMA INITIALIZATION
+    const initDatabaseSchema = async () => {
+      try {
+        updateDbStatus('syncing', 'Syncing DB...');
+        
+        // Create users table
+        await sql`
+          CREATE TABLE IF NOT EXISTS campus_users (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            age INT NOT NULL,
+            semester TEXT NOT NULL,
+            password TEXT NOT NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `;
+
+        // Create tasks table
+        await sql`
+          CREATE TABLE IF NOT EXISTS campus_tasks (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            course TEXT NOT NULL,
+            due_date TEXT NOT NULL,
+            priority TEXT NOT NULL,
+            completed BOOLEAN DEFAULT FALSE,
+            completed_at TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `;
+
+        // Create courses table
+        await sql`
+          CREATE TABLE IF NOT EXISTS campus_courses (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            code TEXT NOT NULL,
+            instructor TEXT,
+            base_progress INT DEFAULT 0,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `;
+
+        // Create notes table
+        await sql`
+          CREATE TABLE IF NOT EXISTS campus_notes (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `;
+
+        // Create celebrations/events table
+        await sql`
+          CREATE TABLE IF NOT EXISTS campus_events (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            date TEXT NOT NULL,
+            category TEXT NOT NULL,
+            emoji TEXT DEFAULT '🎉',
+            note TEXT,
+            celebrated BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `;
+
+        updateDbStatus('connected', 'Cloud DB Active');
+        console.log('✅ Neon Cloud Database tables initialized and verified.');
+        return true;
+      } catch (err) {
+        console.error('❌ Failed initializing Neon database tables:', err);
+        updateDbStatus('error', 'Cloud DB Offline (Local Mode)');
+        return false;
+      }
+    };
+
+    // 2. STORAGE & MULTI-USER ISOLATION ENGINE (HYBRID CLOUD + LOCAL CACHE)
     const StorageEngine = (() => {
       const GLOBAL_KEYS = {
         ACCOUNTS: 'campusos_student_accounts',
@@ -1970,14 +2116,8 @@
       };
 
       const getActiveUser = () => get(GLOBAL_KEYS.ACTIVE_SESSION, null);
-
-      const setActiveUser = (userObj) => {
-        set(GLOBAL_KEYS.ACTIVE_SESSION, userObj);
-      };
-
-      const clearActiveUser = () => {
-        localStorage.removeItem(GLOBAL_KEYS.ACTIVE_SESSION);
-      };
+      const setActiveUser = (userObj) => set(GLOBAL_KEYS.ACTIVE_SESSION, userObj);
+      const clearActiveUser = () => localStorage.removeItem(GLOBAL_KEYS.ACTIVE_SESSION);
 
       const getUserKey = (entity) => {
         const active = getActiveUser();
@@ -1985,13 +2125,8 @@
         return `campusos_${userId}_${entity}`;
       };
 
-      const getUserData = (entity, fallback = []) => {
-        return get(getUserKey(entity), fallback);
-      };
-
-      const setUserData = (entity, value) => {
-        return set(getUserKey(entity), value);
-      };
+      const getUserData = (entity, fallback = []) => get(getUserKey(entity), fallback);
+      const setUserData = (entity, value) => set(getUserKey(entity), value);
 
       return {
         GLOBAL_KEYS,
@@ -2005,18 +2140,19 @@
       };
     })();
 
-    // 2. AUTHENTICATION SERVICE
+    // 3. AUTHENTICATION SERVICE (NEON POSTGRESQL + LOCAL CACHE)
     const AuthService = (() => {
       const getAccounts = () => StorageEngine.get(StorageEngine.GLOBAL_KEYS.ACCOUNTS, []);
 
-      const register = ({ name, age, sem, password }) => {
+      const register = async ({ name, age, sem, password }) => {
         const cleanName = name.trim().replace(/\s+/g, ' ');
         const cleanKey = sanitizeKey(cleanName);
         const cleanPassword = password.trim();
 
+        // 1. Check local cache
         const accounts = getAccounts();
-        const existing = accounts.find(a => sanitizeKey(a.name) === cleanKey);
-        if (existing) {
+        const existingLocal = accounts.find(a => sanitizeKey(a.name) === cleanKey);
+        if (existingLocal) {
           return { success: false, message: 'A student profile with this name already exists. Please login instead.' };
         }
 
@@ -2024,31 +2160,93 @@
           id: 'student_' + Date.now(),
           name: cleanName,
           age: Number(age) || 18,
-          sem: sem.trim() || 'Semester 1',
+          sem: sem.trim() || 'General',
           password: cleanPassword
         };
 
+        // 2. Persist to Neon Cloud PostgreSQL
+        try {
+          updateDbStatus('syncing', 'Registering Cloud...');
+          
+          // Verify if username exists in cloud
+          const existingRows = await sql`
+            SELECT id FROM campus_users WHERE LOWER(TRIM(name)) = ${cleanKey} LIMIT 1;
+          `;
+
+          if (existingRows.length > 0) {
+            updateDbStatus('connected', 'Cloud DB Active');
+            return { success: false, message: 'This student name is already registered in the Cloud DB. Please login.' };
+          }
+
+          await sql`
+            INSERT INTO campus_users (id, name, age, semester, password)
+            VALUES (${newAccount.id}, ${newAccount.name}, ${newAccount.age}, ${newAccount.sem}, ${newAccount.password});
+          `;
+
+          updateDbStatus('connected', 'Cloud DB Active');
+        } catch (dbErr) {
+          console.warn('Could not write new user to cloud DB, falling back to local:', dbErr);
+          updateDbStatus('error', 'Cloud Sync Error');
+        }
+
+        // 3. Update local cache
         accounts.push(newAccount);
         StorageEngine.set(StorageEngine.GLOBAL_KEYS.ACCOUNTS, accounts);
         StorageEngine.setActiveUser(newAccount);
         return { success: true, user: newAccount };
       };
 
-      const login = (name, password) => {
+      const login = async (name, password) => {
         const cleanNameKey = sanitizeKey(name);
         const cleanPass = password.trim();
 
-        const accounts = getAccounts();
-        const student = accounts.find(a => sanitizeKey(a.name) === cleanNameKey);
+        updateDbStatus('syncing', 'Authenticating Cloud...');
+        let student = null;
+
+        // 1. Query Cloud DB first
+        try {
+          const rows = await sql`
+            SELECT id, name, age, semester as sem, password 
+            FROM campus_users 
+            WHERE LOWER(TRIM(name)) = ${cleanNameKey} 
+            LIMIT 1;
+          `;
+
+          if (rows.length > 0) {
+            student = rows[0];
+          }
+        } catch (err) {
+          console.warn('Cloud DB lookup failed, falling back to local cache:', err);
+        }
+
+        // 2. Fallback to local accounts if cloud is unreachable
+        if (!student) {
+          const accounts = getAccounts();
+          student = accounts.find(a => sanitizeKey(a.name) === cleanNameKey);
+        }
 
         if (!student) {
+          updateDbStatus('connected', 'Cloud DB Active');
           return { success: false, message: 'No student account found with this name.' };
         }
         if (student.password !== cleanPass) {
+          updateDbStatus('connected', 'Cloud DB Active');
           return { success: false, message: 'Incorrect password. Please verify and try again.' };
         }
 
+        // Cache user locally
+        const accounts = getAccounts();
+        if (!accounts.some(a => a.id === student.id)) {
+          accounts.push(student);
+          StorageEngine.set(StorageEngine.GLOBAL_KEYS.ACCOUNTS, accounts);
+        }
+
         StorageEngine.setActiveUser(student);
+        updateDbStatus('connected', 'Cloud DB Active');
+
+        // Pull full cloud state for this student
+        await syncCloudUserData(student.id);
+
         return { success: true, user: student };
       };
 
@@ -2059,10 +2257,36 @@
       return { getAccounts, register, login, logout };
     })();
 
+    // 4. CLOUD SYNCHRONIZATION PULL ENGINE
+    const syncCloudUserData = async (userId) => {
+      try {
+        updateDbStatus('syncing', 'Syncing Data...');
+
+        // Parallel fetch for this student's data
+        const [tasksRes, coursesRes, notesRes, eventsRes] = await Promise.all([
+          sql`SELECT id, title, course, due_date as "dueDate", priority, completed, completed_at as "completedAt" FROM campus_tasks WHERE user_id = ${userId} ORDER BY created_at DESC;`,
+          sql`SELECT id, name, code, instructor, base_progress as "baseProgress" FROM campus_courses WHERE user_id = ${userId} ORDER BY created_at ASC;`,
+          sql`SELECT id, title, content, to_char(created_at, 'YYYY-MM-DD') as "createdAt" FROM campus_notes WHERE user_id = ${userId} ORDER BY created_at DESC;`,
+          sql`SELECT id, name, date, category, emoji, note, celebrated FROM campus_events WHERE user_id = ${userId} ORDER BY date ASC;`
+        ]);
+
+        StorageEngine.setUserData('tasks', tasksRes);
+        StorageEngine.setUserData('courses', coursesRes);
+        StorageEngine.setUserData('notes', notesRes);
+        StorageEngine.setUserData('events', eventsRes);
+
+        updateDbStatus('connected', 'Cloud DB Active');
+        window.dispatchEvent(new CustomEvent('campusos:cloud-synced'));
+      } catch (err) {
+        console.error('Failed to sync cloud user data:', err);
+        updateDbStatus('error', 'Cloud Sync Error');
+      }
+    };
+
+    // 5. TASK MANAGER
     const TaskManager = (() => {
       const calculateSmartPriority = (dueDateStr) => {
         if (!dueDateStr) return 'LOW';
-
         const now = new Date();
         now.setHours(0, 0, 0, 0);
 
@@ -2073,13 +2297,9 @@
         const diffTime = due.getTime() - now.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays <= 1) {
-          return 'HIGH'; // Due today or tomorrow
-        } else if (diffDays <= 3) {
-          return 'MEDIUM'; // Within 3 days
-        } else {
-          return 'LOW'; // Later
-        }
+        if (diffDays <= 1) return 'HIGH';
+        if (diffDays <= 3) return 'MEDIUM';
+        return 'LOW';
       };
 
       const getTasks = () => StorageEngine.getUserData('tasks', []);
@@ -2089,8 +2309,8 @@
         window.dispatchEvent(new CustomEvent('campusos:tasks-updated'));
       };
 
-      const addTask = ({ title, course, dueDate, priority }) => {
-        const tasks = getTasks();
+      const addTask = async ({ title, course, dueDate, priority }) => {
+        const activeUser = StorageEngine.getActiveUser();
         const resolvedPriority = (priority === 'AUTO' || !priority)
           ? calculateSmartPriority(dueDate)
           : priority;
@@ -2105,27 +2325,73 @@
           completedAt: null
         };
 
+        const tasks = getTasks();
         tasks.unshift(newTask);
         saveTasks(tasks);
+
+        // Async write to Neon DB
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Saving Task...');
+            await sql`
+              INSERT INTO campus_tasks (id, user_id, title, course, due_date, priority, completed)
+              VALUES (${newTask.id}, ${activeUser.id}, ${newTask.title}, ${newTask.course}, ${newTask.dueDate}, ${newTask.priority}, FALSE);
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB task write failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return newTask;
       };
 
-      const toggleTaskCompletion = (taskId) => {
+      const toggleTaskCompletion = async (taskId) => {
         const tasks = getTasks();
         const target = tasks.find(t => t.id === taskId);
         if (!target) return null;
 
         target.completed = !target.completed;
         target.completedAt = target.completed ? new Date().toISOString().split('T')[0] : null;
-
         saveTasks(tasks);
+
+        // Async update to Neon DB
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Updating Task...');
+            await sql`
+              UPDATE campus_tasks 
+              SET completed = ${target.completed}, completed_at = ${target.completedAt}
+              WHERE id = ${target.id} AND user_id = ${activeUser.id};
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB task update failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return target;
       };
 
-      const deleteTask = (taskId) => {
+      const deleteTask = async (taskId) => {
         let tasks = getTasks();
         tasks = tasks.filter(t => t.id !== taskId);
         saveTasks(tasks);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Deleting Task...');
+            await sql`DELETE FROM campus_tasks WHERE id = ${taskId} AND user_id = ${activeUser.id};`;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB task delete failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
       };
 
       const getTaskStats = () => {
@@ -2143,6 +2409,7 @@
       return { getTasks, addTask, toggleTaskCompletion, deleteTask, getTaskStats, calculateSmartPriority };
     })();
 
+    // 6. EVENT MANAGER (CELEBRATIONS & MILESTONES)
     const EventManager = (() => {
       const getEvents = () => StorageEngine.getUserData('events', []);
 
@@ -2151,8 +2418,7 @@
         window.dispatchEvent(new CustomEvent('campusos:events-updated'));
       };
 
-      const addEvent = ({ name, date, category, emoji, note }) => {
-        const events = getEvents();
+      const addEvent = async ({ name, date, category, emoji, note }) => {
         const newEvent = {
           id: 'event_' + Date.now(),
           name: name.trim(),
@@ -2163,25 +2429,71 @@
           celebrated: false
         };
 
+        const events = getEvents();
         events.push(newEvent);
         events.sort((a, b) => a.date.localeCompare(b.date));
         saveEvents(events);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Saving Celebration...');
+            await sql`
+              INSERT INTO campus_events (id, user_id, name, date, category, emoji, note, celebrated)
+              VALUES (${newEvent.id}, ${activeUser.id}, ${newEvent.name}, ${newEvent.date}, ${newEvent.category}, ${newEvent.emoji}, ${newEvent.note}, FALSE);
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB celebration insert failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return newEvent;
       };
 
-      const toggleCelebrated = (eventId) => {
+      const toggleCelebrated = async (eventId) => {
         const events = getEvents();
         const target = events.find(e => e.id === eventId);
         if (!target) return null;
         target.celebrated = !target.celebrated;
         saveEvents(events);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Updating Milestone...');
+            await sql`
+              UPDATE campus_events 
+              SET celebrated = ${target.celebrated}
+              WHERE id = ${target.id} AND user_id = ${activeUser.id};
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB celebration toggle failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return target;
       };
 
-      const deleteEvent = (eventId) => {
+      const deleteEvent = async (eventId) => {
         let events = getEvents();
         events = events.filter(e => e.id !== eventId);
         saveEvents(events);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Deleting Event...');
+            await sql`DELETE FROM campus_events WHERE id = ${eventId} AND user_id = ${activeUser.id};`;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB event delete failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
       };
 
       const getCountdownInfo = (dateStr, celebrated) => {
@@ -2196,21 +2508,28 @@
         const diffTime = eventDate.getTime() - now.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays === 0) {
-          return { label: 'Happening Today! 🎉', type: 'countdown-today' };
-        } else if (diffDays === 1) {
-          return { label: 'Tomorrow! 🚀', type: 'countdown-upcoming' };
-        } else if (diffDays > 1) {
-          return { label: `In ${diffDays} days`, type: 'countdown-upcoming' };
-        } else {
-          return { label: 'Completed Milestone', type: 'countdown-past' };
-        }
+        if (diffDays === 0) return { label: 'Happening Today! 🎉', type: 'countdown-today' };
+        if (diffDays === 1) return { label: 'Tomorrow! 🚀', type: 'countdown-upcoming' };
+        if (diffDays > 1) return { label: `In ${diffDays} days`, type: 'countdown-upcoming' };
+        return { label: 'Completed Milestone', type: 'countdown-past' };
       };
 
       return { getEvents, addEvent, toggleCelebrated, deleteEvent, getCountdownInfo };
     })();
 
+    // 7. COURSE MANAGER (SEMESTER 1 CORE + CLOUD CUSTOM)
     const CourseManager = (() => {
+      // Semester 1 Engineering Foundation Courses
+      const SEMESTER_1_COURSES = [
+        { id: 'sem1_eg', name: 'Eng. Graphics', code: 'EG-101', instructor: 'Department Faculty', baseProgress: 15 },
+        { id: 'sem1_ec', name: 'Eng. Chemistry', code: 'EC-102', instructor: 'Chemistry Division', baseProgress: 20 },
+        { id: 'sem1_tcs', name: 'TCS', code: 'TCS-103', instructor: 'Communication Faculty', baseProgress: 25 },
+        { id: 'sem1_iks', name: 'IKS', code: 'IKS-104', instructor: 'Heritage Studies', baseProgress: 30 },
+        { id: 'sem1_circuits', name: 'EC', code: 'EC-105', instructor: 'Electronics Lab', baseProgress: 10 },
+        { id: 'sem1_boe', name: 'BOE', code: 'BOE-106', instructor: 'Engineering Division', baseProgress: 15 },
+        { id: 'sem1_mat', name: 'Material Science', code: 'MS-107', instructor: 'Materials Lab', baseProgress: 20 }
+      ];
+
       const getCustomCourses = () => StorageEngine.getUserData('courses', []);
 
       const saveCustomCourses = (courses) => {
@@ -2218,14 +2537,9 @@
         window.dispatchEvent(new CustomEvent('campusos:courses-updated'));
       };
 
-      // Combines default Semester 1 subjects with student's custom subjects
-      const getAllCourses = () => {
-        const custom = getCustomCourses();
-        return [...SEMESTER_1_SUBJECTS, ...custom];
-      };
+      const getAllCourses = () => [...SEMESTER_1_COURSES, ...getCustomCourses()];
 
-      const addCourse = ({ name, code, instructor, baseProgress }) => {
-        const custom = getCustomCourses();
+      const addCourse = async ({ name, code, instructor, baseProgress }) => {
         const newCourse = {
           id: 'course_' + Date.now(),
           name: name.trim(),
@@ -2235,15 +2549,44 @@
           isCustom: true
         };
 
+        const custom = getCustomCourses();
         custom.push(newCourse);
         saveCustomCourses(custom);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Saving Course...');
+            await sql`
+              INSERT INTO campus_courses (id, user_id, name, code, instructor, base_progress)
+              VALUES (${newCourse.id}, ${activeUser.id}, ${newCourse.name}, ${newCourse.code}, ${newCourse.instructor}, ${newCourse.baseProgress});
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB course insert failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return newCourse;
       };
 
-      const deleteCourse = (courseId) => {
+      const deleteCourse = async (courseId) => {
         let custom = getCustomCourses();
         custom = custom.filter(c => c.id !== courseId);
         saveCustomCourses(custom);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Deleting Course...');
+            await sql`DELETE FROM campus_courses WHERE id = ${courseId} AND user_id = ${activeUser.id};`;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB course delete failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
       };
 
       const getCourseAnalytics = (courseNameOrCode, baseProgress = 0) => {
@@ -2268,7 +2611,7 @@
       return { getAllCourses, getCustomCourses, addCourse, deleteCourse, getCourseAnalytics };
     })();
 
-    // 6. NOTES REPOSITORY
+    // 8. NOTE MANAGER
     const NoteManager = (() => {
       const getNotes = () => StorageEngine.getUserData('notes', []);
 
@@ -2277,8 +2620,7 @@
         window.dispatchEvent(new CustomEvent('campusos:notes-updated'));
       };
 
-      const addNote = ({ title, content }) => {
-        const notes = getNotes();
+      const addNote = async ({ title, content }) => {
         const newNote = {
           id: 'note_' + Date.now(),
           title: title.trim(),
@@ -2286,12 +2628,29 @@
           createdAt: new Date().toISOString().split('T')[0]
         };
 
+        const notes = getNotes();
         notes.unshift(newNote);
         saveNotes(notes);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Saving Note...');
+            await sql`
+              INSERT INTO campus_notes (id, user_id, title, content)
+              VALUES (${newNote.id}, ${activeUser.id}, ${newNote.title}, ${newNote.content});
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB note insert failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return newNote;
       };
 
-      const updateNote = (id, { title, content }) => {
+      const updateNote = async (id, { title, content }) => {
         const notes = getNotes();
         const target = notes.find(n => n.id === id);
         if (!target) return null;
@@ -2299,19 +2658,48 @@
         target.title = title.trim();
         target.content = content.trim();
         saveNotes(notes);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Updating Note...');
+            await sql`
+              UPDATE campus_notes 
+              SET title = ${target.title}, content = ${target.content}
+              WHERE id = ${target.id} AND user_id = ${activeUser.id};
+            `;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB note update failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
+
         return target;
       };
 
-      const deleteNote = (id) => {
+      const deleteNote = async (id) => {
         let notes = getNotes();
         notes = notes.filter(n => n.id !== id);
         saveNotes(notes);
+
+        const activeUser = StorageEngine.getActiveUser();
+        if (activeUser) {
+          try {
+            updateDbStatus('syncing', 'Deleting Note...');
+            await sql`DELETE FROM campus_notes WHERE id = ${id} AND user_id = ${activeUser.id};`;
+            updateDbStatus('connected', 'Cloud DB Active');
+          } catch (e) {
+            console.warn('Neon DB note delete failed:', e);
+            updateDbStatus('error', 'Cloud Sync Error');
+          }
+        }
       };
 
       return { getNotes, addNote, updateNote, deleteNote };
     })();
 
-    // 7. CONFETTI BURST ANIMATION
+    // 9. CONFETTI BURST EFFECT
     const triggerConfetti = () => {
       const canvas = document.getElementById('confettiCanvas');
       if (!canvas) return;
@@ -2373,814 +2761,815 @@
       render();
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const body = document.body;
-      const themeToggleBtn = document.getElementById('themeToggleBtn');
-      const themeIcon = document.getElementById('themeIcon');
-      const liveClockText = document.getElementById('liveClockText');
-      const currentViewTitle = document.getElementById('currentViewTitle');
-      const navItems = document.querySelectorAll('.nav-item');
-      const appViews = document.querySelectorAll('.app-view');
+    const body = document.body;
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const liveClockText = document.getElementById('liveClockText');
+    const currentViewTitle = document.getElementById('currentViewTitle');
+    const navItems = document.querySelectorAll('.nav-item');
+    const appViews = document.querySelectorAll('.app-view');
 
-      const sidebar = document.getElementById('sidebar');
-      const menuToggleBtn = document.getElementById('menuToggleBtn');
-      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebar = document.getElementById('sidebar');
+    const menuToggleBtn = document.getElementById('menuToggleBtn');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-      const authModal = document.getElementById('authModal');
-      const loginForm = document.getElementById('loginForm');
-      const registerForm = document.getElementById('registerForm');
-      const tabLoginBtn = document.getElementById('tabLoginBtn');
-      const tabRegisterBtn = document.getElementById('tabRegisterBtn');
-      const regAccountsBox = document.getElementById('regAccountsBox');
-      const accountChipsWrapper = document.getElementById('accountChipsWrapper');
+    const authModal = document.getElementById('authModal');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+    const regAccountsBox = document.getElementById('regAccountsBox');
+    const accountChipsWrapper = document.getElementById('accountChipsWrapper');
 
-      const taskModal = document.getElementById('taskModal');
-      const eventModal = document.getElementById('eventModal');
-      const courseModal = document.getElementById('courseModal');
-      const noteModal = document.getElementById('noteModal');
+    const taskModal = document.getElementById('taskModal');
+    const eventModal = document.getElementById('eventModal');
+    const courseModal = document.getElementById('courseModal');
+    const noteModal = document.getElementById('noteModal');
 
-      const openModal = (modalEl) => modalEl.classList.add('active');
-      const closeModal = (modalEl) => modalEl.classList.remove('active');
+    const openModal = (modalEl) => modalEl.classList.add('active');
+    const closeModal = (modalEl) => modalEl.classList.remove('active');
 
-      document.querySelectorAll('[data-close-modal]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const modalId = btn.getAttribute('data-close-modal');
-          closeModal(document.getElementById(modalId));
-        });
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        closeModal(document.getElementById(modalId));
       });
+    });
 
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (!StorageEngine.getActiveUser()) return;
-          document.querySelectorAll('.modal-backdrop.active').forEach(closeModal);
-        }
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!StorageEngine.getActiveUser()) return;
+        document.querySelectorAll('.modal-backdrop.active').forEach(closeModal);
+      }
+    });
+
+    const showToast = (message, type = 'default') => {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type === 'success' ? 'toast-success' : type === 'danger' ? 'toast-danger' : type === 'celebrate' ? 'toast-celebrate' : ''}`;
+      
+      let icon = 'fa-circle-info';
+      if (type === 'success') icon = 'fa-circle-check';
+      if (type === 'danger') icon = 'fa-triangle-exclamation';
+      if (type === 'celebrate') icon = 'fa-wand-magic-sparkles';
+
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHTML(message)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 250);
+      }, 2800);
+    };
+
+    const escapeHTML = (str) => {
+      if (!str) return '';
+      return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+    };
+
+    // Theme Management
+    const applyTheme = (theme) => {
+      if (theme === 'light') {
+        body.classList.remove('theme-dark');
+        body.classList.add('theme-light');
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fa-solid fa-moon';
+      } else {
+        body.classList.remove('theme-light');
+        body.classList.add('theme-dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fa-solid fa-sun';
+      }
+      StorageEngine.set(StorageEngine.GLOBAL_KEYS.THEME, theme);
+    };
+
+    const currentTheme = StorageEngine.get(StorageEngine.GLOBAL_KEYS.THEME, 'dark');
+    applyTheme(currentTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = body.classList.contains('theme-dark');
+      applyTheme(isDark ? 'light' : 'dark');
+      showToast(`Switched to ${isDark ? 'Light' : 'Dark'} Mode`);
+    });
+
+    // Clock
+    const updateClock = () => {
+      const now = new Date();
+      liveClockText.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    };
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // View Navigation
+    const switchView = (targetViewId) => {
+      appViews.forEach(v => v.classList.remove('active'));
+      navItems.forEach(n => n.classList.remove('active'));
+
+      const targetEl = document.getElementById(`view-${targetViewId}`);
+      const activeNav = document.querySelector(`.nav-item[data-view="${targetViewId}"]`);
+
+      if (targetEl && activeNav) {
+        targetEl.classList.add('active');
+        activeNav.classList.add('active');
+        const titleSpan = activeNav.querySelector('span:first-of-type');
+        currentViewTitle.textContent = titleSpan ? titleSpan.textContent : 'Command Center';
+      }
+
+      closeMobileSidebar();
+
+      if (targetViewId === 'dashboard') renderDashboard();
+      if (targetViewId === 'tasks') renderTasks();
+      if (targetViewId === 'events') renderEventsView();
+      if (targetViewId === 'courses') renderCoursesView();
+      if (targetViewId === 'notes') renderNotesView();
+    };
+
+    navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchView(item.getAttribute('data-view'));
       });
+    });
 
-      const showToast = (message, type = 'default') => {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type === 'success' ? 'toast-success' : type === 'danger' ? 'toast-danger' : type === 'celebrate' ? 'toast-celebrate' : ''}`;
-        
-        let icon = 'fa-circle-info';
-        if (type === 'success') icon = 'fa-circle-check';
-        if (type === 'danger') icon = 'fa-triangle-exclamation';
-        if (type === 'celebrate') icon = 'fa-wand-magic-sparkles';
+    // Mobile Navigation Drawer
+    const openMobileSidebar = () => {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('active');
+    };
 
-        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHTML(message)}</span>`;
-        container.appendChild(toast);
+    const closeMobileSidebar = () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    };
 
-        setTimeout(() => {
-          toast.classList.add('fade-out');
-          setTimeout(() => toast.remove(), 250);
-        }, 2800);
-      };
+    menuToggleBtn.addEventListener('click', openMobileSidebar);
+    sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
+    sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
-      const escapeHTML = (str) => {
-        if (!str) return '';
-        return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-      };
+    // Profile & Auth
+    const renderAccountPills = () => {
+      const accounts = AuthService.getAccounts();
+      if (accounts.length > 0) {
+        regAccountsBox.style.display = 'block';
+        accountChipsWrapper.innerHTML = accounts.map(a => `
+          <button type="button" class="account-chip" data-autofill-name="${escapeHTML(a.name)}">
+            <i class="fa-solid fa-user-circle"></i> ${escapeHTML(a.name)}
+          </button>
+        `).join('');
 
-      // Theme
-      const applyTheme = (theme) => {
-        if (theme === 'light') {
-          body.classList.remove('theme-dark');
-          body.classList.add('theme-light');
-          document.documentElement.setAttribute('data-theme', 'light');
-          themeIcon.className = 'fa-solid fa-moon';
-        } else {
-          body.classList.remove('theme-light');
-          body.classList.add('theme-dark');
-          document.documentElement.setAttribute('data-theme', 'dark');
-          themeIcon.className = 'fa-solid fa-sun';
-        }
-        StorageEngine.set(StorageEngine.GLOBAL_KEYS.THEME, theme);
-      };
-
-      const currentTheme = StorageEngine.get(StorageEngine.GLOBAL_KEYS.THEME, 'dark');
-      applyTheme(currentTheme);
-
-      themeToggleBtn.addEventListener('click', () => {
-        const isDark = body.classList.contains('theme-dark');
-        applyTheme(isDark ? 'light' : 'dark');
-        showToast(`Switched to ${isDark ? 'Light' : 'Dark'} Mode`);
-      });
-
-      // Live Clock
-      const updateClock = () => {
-        const now = new Date();
-        liveClockText.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      };
-      setInterval(updateClock, 1000);
-      updateClock();
-
-      // View Router
-      const switchView = (targetViewId) => {
-        appViews.forEach(v => v.classList.remove('active'));
-        navItems.forEach(n => n.classList.remove('active'));
-
-        const targetEl = document.getElementById(`view-${targetViewId}`);
-        const activeNav = document.querySelector(`.nav-item[data-view="${targetViewId}"]`);
-
-        if (targetEl && activeNav) {
-          targetEl.classList.add('active');
-          activeNav.classList.add('active');
-          const titleSpan = activeNav.querySelector('span:first-of-type');
-          currentViewTitle.textContent = titleSpan ? titleSpan.textContent : 'Command Center';
-        }
-
-        closeMobileSidebar();
-
-        if (targetViewId === 'dashboard') renderDashboard();
-        if (targetViewId === 'tasks') renderTasks();
-        if (targetViewId === 'events') renderEventsView();
-        if (targetViewId === 'courses') renderCoursesView();
-        if (targetViewId === 'notes') renderNotesView();
-      };
-
-      navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-          e.preventDefault();
-          switchView(item.getAttribute('data-view'));
-        });
-      });
-
-      // Mobile Sidebar Controls
-      const openMobileSidebar = () => {
-        sidebar.classList.add('open');
-        sidebarOverlay.classList.add('active');
-      };
-
-      const closeMobileSidebar = () => {
-        sidebar.classList.remove('open');
-        sidebarOverlay.classList.remove('active');
-      };
-
-      menuToggleBtn.addEventListener('click', openMobileSidebar);
-      sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
-      sidebarOverlay.addEventListener('click', closeMobileSidebar);
-
-      // Account Chips
-      const renderAccountPills = () => {
-        const accounts = AuthService.getAccounts();
-        if (accounts.length > 0) {
-          regAccountsBox.style.display = 'block';
-          accountChipsWrapper.innerHTML = accounts.map(a => `
-            <button type="button" class="account-chip" data-autofill-name="${escapeHTML(a.name)}">
-              <i class="fa-solid fa-user-circle"></i> ${escapeHTML(a.name)}
-            </button>
-          `).join('');
-
-          accountChipsWrapper.querySelectorAll('[data-autofill-name]').forEach(chip => {
-            chip.addEventListener('click', () => {
-              const name = chip.getAttribute('data-autofill-name');
-              document.getElementById('loginName').value = name;
-              document.getElementById('loginPassword').focus();
-            });
+        accountChipsWrapper.querySelectorAll('[data-autofill-name]').forEach(chip => {
+          chip.addEventListener('click', () => {
+            const name = chip.getAttribute('data-autofill-name');
+            document.getElementById('loginName').value = name;
+            document.getElementById('loginPassword').focus();
           });
-        } else {
-          regAccountsBox.style.display = 'none';
-        }
-      };
+        });
+      } else {
+        regAccountsBox.style.display = 'none';
+      }
+    };
 
-      // Auth Tabs
-      tabLoginBtn.addEventListener('click', () => {
-        tabLoginBtn.classList.add('active');
-        tabRegisterBtn.classList.remove('active');
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-        renderAccountPills();
-      });
+    tabLoginBtn.addEventListener('click', () => {
+      tabLoginBtn.classList.add('active');
+      tabRegisterBtn.classList.remove('active');
+      loginForm.style.display = 'block';
+      registerForm.style.display = 'none';
+      renderAccountPills();
+    });
 
-      tabRegisterBtn.addEventListener('click', () => {
-        tabRegisterBtn.classList.add('active');
-        tabLoginBtn.classList.remove('active');
-        registerForm.style.display = 'block';
-        loginForm.style.display = 'none';
-      });
+    tabRegisterBtn.addEventListener('click', () => {
+      tabRegisterBtn.classList.add('active');
+      tabLoginBtn.classList.remove('active');
+      registerForm.style.display = 'block';
+      loginForm.style.display = 'none';
+    });
 
-      const syncStudentProfileUI = (student) => {
-        if (!student) {
-          renderAccountPills();
-          openModal(authModal);
-          return;
-        }
-
-        const initial = student.name.trim().charAt(0).toUpperCase() || 'S';
-        document.getElementById('heroStudentName').textContent = student.name;
-        document.getElementById('sidebarStudentName').textContent = student.name;
-        document.getElementById('headerName').textContent = student.name;
-        document.getElementById('sidebarStudentMeta').textContent = `${student.sem} • Age ${student.age}`;
-        document.getElementById('sidebarAvatar').textContent = initial;
-        document.getElementById('headerAvatar').textContent = initial;
-      };
-
-      // Register Form
-      registerForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('regName').value;
-        const age = document.getElementById('regAge').value;
-        const sem = document.getElementById('regSem').value;
-        const pass = document.getElementById('regPassword').value;
-        const confirmPass = document.getElementById('regConfirmPassword').value;
-
-        if (pass.trim() !== confirmPass.trim()) {
-          showToast('Passwords do not match!', 'danger');
-          return;
-        }
-
-        const res = AuthService.register({ name, age, sem, password: pass });
-        if (!res.success) {
-          showToast(res.message, 'danger');
-          return;
-        }
-
-        closeModal(authModal);
-        syncStudentProfileUI(res.user);
-        refreshAllViews();
-        showToast(`Registered & Logged in as ${res.user.name}! 🎉`, 'celebrate');
-        triggerConfetti();
-      });
-
-      // Login Form
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('loginName').value;
-        const pass = document.getElementById('loginPassword').value;
-
-        const res = AuthService.login(name, pass);
-        if (!res.success) {
-          showToast(res.message, 'danger');
-          return;
-        }
-
-        closeModal(authModal);
-        syncStudentProfileUI(res.user);
-        refreshAllViews();
-        showToast(`Welcome back, ${res.user.name}! ✨`, 'success');
-      });
-
-      const handleLogout = () => {
-        AuthService.logout();
-        loginForm.reset();
-        registerForm.reset();
+    const syncStudentProfileUI = (student) => {
+      if (!student) {
         renderAccountPills();
         openModal(authModal);
-        showToast('Logged out. Please log in to continue.');
-      };
+        return;
+      }
 
-      document.getElementById('sidebarLogoutBtn').addEventListener('click', handleLogout);
-      document.getElementById('profilePill').addEventListener('click', handleLogout);
+      const initial = student.name.trim().charAt(0).toUpperCase() || 'S';
+      document.getElementById('heroStudentName').textContent = student.name;
+      document.getElementById('sidebarStudentName').textContent = student.name;
+      document.getElementById('headerName').textContent = student.name;
+      document.getElementById('sidebarStudentMeta').textContent = `${student.sem} • Age ${student.age}`;
+      document.getElementById('sidebarAvatar').textContent = initial;
+      document.getElementById('headerAvatar').textContent = initial;
+    };
 
-      // POPULATE COURSE DROPDOWNS (Semester 1 + Any Custom Added Courses)
-      const populateCourseDropdowns = () => {
-        const allCourses = CourseManager.getAllCourses();
-        const taskCourseSelect = document.getElementById('taskCourse');
-        const taskCourseFilter = document.getElementById('taskCourseFilter');
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const age = document.getElementById('regAge').value;
+      const sem = document.getElementById('regSem').value;
+      const pass = document.getElementById('regPassword').value;
+      const confirmPass = document.getElementById('regConfirmPassword').value;
 
-        // Create options cleanly in one map without overwriting
-        taskCourseSelect.innerHTML = allCourses.map(c => 
-          `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)} (${escapeHTML(c.code)})</option>`
-        ).join('');
+      if (pass.trim() !== confirmPass.trim()) {
+        showToast('Passwords do not match!', 'danger');
+        return;
+      }
 
-        taskCourseFilter.innerHTML = `<option value="ALL">All Courses</option>` + 
-          allCourses.map(c => 
-            `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`
-          ).join('');
-      };
+      const res = await AuthService.register({ name, age, sem, password: pass });
+      if (!res.success) {
+        showToast(res.message, 'danger');
+        return;
+      }
 
-      // RENDER: DASHBOARD VIEW
-      const renderDashboard = () => {
-        const stats = TaskManager.getTaskStats();
-        const events = EventManager.getEvents();
+      closeModal(authModal);
+      syncStudentProfileUI(res.user);
+      refreshAllViews();
+      showToast(`Registered & Logged in as ${res.user.name}! 🎉`, 'celebrate');
+      triggerConfetti();
+    });
 
-        document.getElementById('kpiTasksCompleted').textContent = stats.completed;
-        document.getElementById('kpiTasksPending').textContent = stats.pending;
-        document.getElementById('sidebarPendingBadge').textContent = stats.pending;
-        document.getElementById('sidebarEventsBadge').textContent = events.length;
-        document.getElementById('kpiCompletedRate').textContent = `${stats.completionRate}%`;
-        document.getElementById('kpiUrgentCount').textContent = `${stats.urgentCount} urgent`;
-        document.getElementById('kpiCelebrationsCount').textContent = events.length;
-        document.getElementById('kpiFocusScore').textContent = `${stats.focusScore}%`;
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('loginName').value;
+      const pass = document.getElementById('loginPassword').value;
 
-        // Dashboard Celebrations
-        const dashEventsContainer = document.getElementById('dashboardEventsList');
-        const upcomingEvents = events.slice(0, 4);
+      const res = await AuthService.login(name, pass);
+      if (!res.success) {
+        showToast(res.message, 'danger');
+        return;
+      }
 
-        if (upcomingEvents.length === 0) {
-          dashEventsContainer.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
-              <p class="empty-state-title">No upcoming celebrations yet</p>
-              <p class="empty-state-sub">Add a hackathon, fest, or milestone to look forward to!</p>
-            </div>`;
-        } else {
-          dashEventsContainer.innerHTML = upcomingEvents.map(ev => {
-            const cd = EventManager.getCountdownInfo(ev.date, ev.celebrated);
-            return `
-              <div class="task-compact-item" style="cursor: pointer;" data-celebrate-dash="${ev.id}">
-                <div class="compact-left">
-                  <span style="font-size: 1.3rem;">${ev.emoji}</span>
-                  <div>
-                    <div class="compact-title">${escapeHTML(ev.name)}</div>
-                    <div class="compact-course">${escapeHTML(ev.category)} • ${escapeHTML(ev.date)}</div>
-                  </div>
-                </div>
-                <span class="event-countdown-chip ${cd.type}">${cd.label}</span>
-              </div>
-            `;
-          }).join('');
+      closeModal(authModal);
+      syncStudentProfileUI(res.user);
+      refreshAllViews();
+      showToast(`Welcome back, ${res.user.name}! ✨`, 'success');
+    });
 
-          dashEventsContainer.querySelectorAll('[data-celebrate-dash]').forEach(item => {
-            item.addEventListener('click', () => {
-              triggerConfetti();
-              showToast('Celebration cheer! Keep thriving 🎉', 'celebrate');
-            });
-          });
-        }
+    const handleLogout = () => {
+      AuthService.logout();
+      loginForm.reset();
+      registerForm.reset();
+      renderAccountPills();
+      openModal(authModal);
+      showToast('Logged out. Please log in to continue.');
+    };
 
-        // Dashboard Urgent Action Queue
-        const urgentTasks = TaskManager.getTasks()
-          .filter(t => !t.completed)
-          .sort((a, b) => (a.priority === 'HIGH' ? -1 : 1))
-          .slice(0, 4);
+    document.getElementById('sidebarLogoutBtn').addEventListener('click', handleLogout);
+    document.getElementById('profilePill').addEventListener('click', handleLogout);
 
-        const urgentContainer = document.getElementById('dashboardUrgentTasksList');
-        if (urgentTasks.length === 0) {
-          urgentContainer.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon"><i class="fa-solid fa-check-double"></i></div>
-              <p class="empty-state-title">You're all caught up 🎉</p>
-              <p class="empty-state-sub">No pending tasks. Create an assignment to track upcoming deadlines.</p>
-            </div>`;
-        } else {
-          urgentContainer.innerHTML = urgentTasks.map(t => `
-            <div class="task-compact-item">
-              <div class="compact-left">
-                <div class="custom-checkbox" data-complete-task="${t.id}">
-                  <i class="fa-solid fa-check" style="display:none;"></i>
-                </div>
-                <div>
-                  <div class="compact-title">${escapeHTML(t.title)}</div>
-                  <div class="compact-course">${escapeHTML(t.course)} • Due ${escapeHTML(t.dueDate)}</div>
-                </div>
-              </div>
-              <span class="badge-priority ${t.priority.toLowerCase()}">${t.priority}</span>
-            </div>
-          `).join('');
+    // Multi-Course Selector Mapping (Combines Sem 1 + Custom Electives)
+    const populateCourseDropdowns = () => {
+      const allCourses = CourseManager.getAllCourses();
+      const taskCourseSelect = document.getElementById('taskCourse');
+      const taskCourseFilter = document.getElementById('taskCourseFilter');
 
-          urgentContainer.querySelectorAll('[data-complete-task]').forEach(box => {
-            box.addEventListener('click', () => {
-              const id = box.getAttribute('data-complete-task');
-              TaskManager.toggleTaskCompletion(id);
-              triggerConfetti();
-              showToast('Task completed 🎉', 'success');
-            });
-          });
-        }
+      taskCourseSelect.innerHTML = allCourses.map(c => 
+        `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)} (${escapeHTML(c.code)})</option>`
+      ).join('') + `<option value="General Academic">General Academic</option>`;
 
-        renderActivityChart();
-      };
+      taskCourseFilter.innerHTML = `<option value="ALL">All Courses</option>` + 
+        allCourses.map(c => 
+          `<option value="${escapeHTML(c.name)}">${escapeHTML(c.name)}</option>`
+        ).join('') + `<option value="General Academic">General Academic</option>`;
+    };
 
-      // Activity Chart
-      const renderActivityChart = () => {
-        const chart = document.getElementById('weeklyActivityChart');
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const tasks = TaskManager.getTasks();
-        const completedTasks = tasks.filter(t => t.completed && t.completedAt);
-        const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+    // Dashboard Telemetry
+    const renderDashboard = () => {
+      const stats = TaskManager.getTaskStats();
+      const events = EventManager.getEvents();
 
-        completedTasks.forEach(t => {
-          try {
-            const date = new Date(t.completedAt);
-            const dayIdx = (date.getDay() + 6) % 7;
-            dayCounts[dayIdx]++;
-          } catch(e) {}
-        });
+      document.getElementById('kpiTasksCompleted').textContent = stats.completed;
+      document.getElementById('kpiTasksPending').textContent = stats.pending;
+      document.getElementById('sidebarPendingBadge').textContent = stats.pending;
+      document.getElementById('sidebarEventsBadge').textContent = events.length;
+      document.getElementById('kpiCompletedRate').textContent = `${stats.completionRate}%`;
+      document.getElementById('kpiUrgentCount').textContent = `${stats.urgentCount} urgent`;
+      document.getElementById('kpiCelebrationsCount').textContent = events.length;
+      document.getElementById('kpiFocusScore').textContent = `${stats.focusScore}%`;
 
-        const maxVal = Math.max(...dayCounts, 4);
+      // Celebrations preview
+      const dashEventsContainer = document.getElementById('dashboardEventsList');
+      const upcomingEvents = events.slice(0, 4);
 
-        chart.innerHTML = days.map((day, idx) => {
-          const val = dayCounts[idx];
-          const heightPercent = val > 0 ? Math.max(12, Math.round((val / maxVal) * 100)) : 6;
-          return `
-            <div class="chart-column">
-              <span class="chart-value-hint">${val}</span>
-              <div class="chart-bar-wrap">
-                <div class="chart-bar-fill" style="height: ${heightPercent}%"></div>
-              </div>
-              <span class="chart-label">${day}</span>
-            </div>
-          `;
-        }).join('');
-      };
-
-      // RENDER: TASKS VIEW
-      let currentTaskFilter = 'all';
-      let taskSearchTerm = '';
-      let taskCourseFilterVal = 'ALL';
-      let taskPriorityFilterVal = 'ALL';
-
-      const renderTasks = () => {
-        populateCourseDropdowns();
-        const tasks = TaskManager.getTasks();
-
-        const pendingCount = tasks.filter(t => !t.completed).length;
-        const completedCount = tasks.filter(t => t.completed).length;
-        document.getElementById('countAll').textContent = tasks.length;
-        document.getElementById('countPending').textContent = pendingCount;
-        document.getElementById('countCompleted').textContent = completedCount;
-
-        let filtered = tasks.filter(t => {
-          if (currentTaskFilter === 'pending' && t.completed) return false;
-          if (currentTaskFilter === 'completed' && !t.completed) return false;
-          if (taskSearchTerm && !t.title.toLowerCase().includes(taskSearchTerm.toLowerCase())) return false;
-          if (taskCourseFilterVal !== 'ALL' && t.course !== taskCourseFilterVal) return false;
-          if (taskPriorityFilterVal !== 'ALL' && t.priority !== taskPriorityFilterVal) return false;
-          return true;
-        });
-
-        const container = document.getElementById('tasksListContainer');
-
-        if (filtered.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon"><i class="fa-solid fa-list-check"></i></div>
-              <p class="empty-state-title">You're all caught up 🎉</p>
-              <p class="empty-state-sub">No pending tasks found. Click 'New Task' to schedule an assignment.</p>
-            </div>`;
-          return;
-        }
-
-        container.innerHTML = filtered.map(t => {
-          const isUrgent = !t.completed && t.priority === 'HIGH';
-          return `
-            <div class="task-card-item ${t.completed ? 'completed' : ''}" data-task-id="${t.id}">
-              <div class="task-left-cluster">
-                <div class="custom-checkbox" data-action="toggle">
-                  ${t.completed ? '<i class="fa-solid fa-check"></i>' : ''}
-                </div>
-                <div class="task-text-block">
-                  <span class="task-text-title">${escapeHTML(t.title)}</span>
-                  <div class="task-sub-meta">
-                    <span><i class="fa-solid fa-book"></i> ${escapeHTML(t.course)}</span>
-                    <span class="due-pill ${isUrgent ? 'urgent' : ''}">
-                      <i class="fa-regular fa-clock"></i> Due: ${escapeHTML(t.dueDate)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="task-right-actions">
-                <span class="badge-priority ${t.priority.toLowerCase()}">${t.priority}</span>
-                <button class="btn btn-sm btn-danger-outline" data-action="delete" title="Delete Task">
-                  <i class="fa-regular fa-trash-can"></i>
-                </button>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        container.querySelectorAll('.task-card-item').forEach(card => {
-          const id = card.getAttribute('data-task-id');
-          card.querySelector('[data-action="toggle"]').addEventListener('click', () => {
-            const updated = TaskManager.toggleTaskCompletion(id);
-            if (updated && updated.completed) triggerConfetti();
-            showToast(updated.completed ? 'Task completed 🎉' : 'Task marked pending', 'success');
-          });
-
-          card.querySelector('[data-action="delete"]').addEventListener('click', () => {
-            TaskManager.deleteTask(id);
-            showToast('Task removed from queue');
-          });
-        });
-      };
-
-      document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          currentTaskFilter = tab.getAttribute('data-filter');
-          renderTasks();
-        });
-      });
-
-      document.getElementById('taskSearchInput').addEventListener('input', (e) => {
-        taskSearchTerm = e.target.value.trim();
-        renderTasks();
-      });
-
-      document.getElementById('taskCourseFilter').addEventListener('change', (e) => {
-        taskCourseFilterVal = e.target.value;
-        renderTasks();
-      });
-
-      document.getElementById('taskPriorityFilter').addEventListener('change', (e) => {
-        taskPriorityFilterVal = e.target.value;
-        renderTasks();
-      });
-
-      const taskForm = document.getElementById('taskForm');
-      const triggerAddTaskModal = () => {
-        taskForm.reset();
-        populateCourseDropdowns();
-        const d = new Date();
-        d.setDate(d.getDate() + 1);
-        document.getElementById('taskDueDate').value = d.toISOString().split('T')[0];
-        openModal(taskModal);
-      };
-
-      document.getElementById('openAddTaskModalBtn').addEventListener('click', triggerAddTaskModal);
-      document.getElementById('quickAddTaskBtn').addEventListener('click', triggerAddTaskModal);
-
-      taskForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const title = document.getElementById('taskTitle').value;
-        const course = document.getElementById('taskCourse').value;
-        const dueDate = document.getElementById('taskDueDate').value;
-        const priority = document.getElementById('taskPriority').value;
-
-        TaskManager.addTask({ title, course, dueDate, priority });
-        closeModal(taskModal);
-        showToast('Task added successfully ✓', 'success');
-      });
-
-      // RENDER: CAMPUS CELEBRATIONS & EVENTS VIEW
-      const renderEventsView = () => {
-        const events = EventManager.getEvents();
-        const container = document.getElementById('eventsListContainer');
-
-        if (events.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-              <div class="empty-state-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
-              <p class="empty-state-title">No celebrations scheduled</p>
-              <p class="empty-state-sub">Add your college fest, hackathons, sports days, or milestones!</p>
-            </div>`;
-          return;
-        }
-
-        container.innerHTML = events.map(ev => {
+      if (upcomingEvents.length === 0) {
+        dashEventsContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
+            <p class="empty-state-title">No upcoming celebrations yet</p>
+            <p class="empty-state-sub">Add a hackathon, fest, or milestone to look forward to!</p>
+          </div>`;
+      } else {
+        dashEventsContainer.innerHTML = upcomingEvents.map(ev => {
           const cd = EventManager.getCountdownInfo(ev.date, ev.celebrated);
           return `
-            <div class="event-card ${ev.celebrated ? 'celebrated' : ''}" data-event-card="${ev.id}">
-              <div>
-                <div class="event-card-top">
-                  <div class="event-emoji-badge">${ev.emoji}</div>
-                  <span class="event-category-tag">${escapeHTML(ev.category)}</span>
-                </div>
-
-                <h3 class="event-title">${escapeHTML(ev.name)}</h3>
-                <div class="event-date-row">
-                  <i class="fa-regular fa-calendar"></i> ${escapeHTML(ev.date)}
-                </div>
-
-                ${ev.note ? `<div class="event-note">"${escapeHTML(ev.note)}"</div>` : ''}
-              </div>
-
-              <div>
-                <div style="margin-bottom: 12px;">
-                  <span class="event-countdown-chip ${cd.type}">${cd.label}</span>
-                </div>
-
-                <div class="event-actions">
-                  <button class="btn btn-sm ${ev.celebrated ? 'btn-outline' : 'btn-celebrate'}" data-action="toggle-celebration">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> ${ev.celebrated ? 'Celebrated ✓' : 'Celebrate!'}
-                  </button>
-                  <button class="btn btn-sm btn-danger-outline" data-action="delete-event" title="Remove event">
-                    <i class="fa-regular fa-trash-can"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        container.querySelectorAll('[data-event-card]').forEach(card => {
-          const id = card.getAttribute('data-event-card');
-          card.querySelector('[data-action="toggle-celebration"]').addEventListener('click', () => {
-            const updated = EventManager.toggleCelebrated(id);
-            if (updated && updated.celebrated) {
-              triggerConfetti();
-              showToast(`Hooray for ${updated.name}! 🎉`, 'celebrate');
-            } else {
-              showToast('Celebration reset');
-            }
-          });
-
-          card.querySelector('[data-action="delete-event"]').addEventListener('click', () => {
-            EventManager.deleteEvent(id);
-            showToast('Event removed');
-          });
-        });
-      };
-
-      const eventForm = document.getElementById('eventForm');
-      const triggerAddEventModal = () => {
-        eventForm.reset();
-        const d = new Date();
-        d.setDate(d.getDate() + 7);
-        document.getElementById('eventDate').value = d.toISOString().split('T')[0];
-        openModal(eventModal);
-      };
-
-      document.getElementById('openAddEventModalBtn').addEventListener('click', triggerAddEventModal);
-      document.getElementById('dashAddCelebrationBtn').addEventListener('click', triggerAddEventModal);
-      document.getElementById('dashViewAllEventsBtn').addEventListener('click', () => switchView('events'));
-      document.getElementById('dashViewAllTasksBtn').addEventListener('click', () => switchView('tasks'));
-
-      eventForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('eventName').value;
-        const date = document.getElementById('eventDate').value;
-        const category = document.getElementById('eventCategory').value;
-        const emoji = document.getElementById('eventEmoji').value;
-        const note = document.getElementById('eventNote').value;
-
-        EventManager.addEvent({ name, date, category, emoji, note });
-        closeModal(eventModal);
-        triggerConfetti();
-        showToast('Celebration event created! 🎉', 'celebrate');
-      });
-
-      // RENDER: COURSES VIEW (Semester 1 Subjects + Custom Added Courses)
-      const renderCoursesView = () => {
-        const courses = CourseManager.getAllCourses();
-        const container = document.getElementById('coursesListContainer');
-
-        container.innerHTML = courses.map(c => {
-          const analytics = CourseManager.getCourseAnalytics(c.name, c.baseProgress);
-          return `
-            <div class="course-card">
-              <div class="course-header-row">
+            <div class="task-compact-item" style="cursor: pointer;" data-celebrate-dash="${ev.id}">
+              <div class="compact-left">
+                <span style="font-size: 1.3rem;">${ev.emoji}</span>
                 <div>
-                  <span class="course-code-tag">${escapeHTML(c.code)}</span>
-                  <h3 class="course-title" style="margin-top: 6px;">${escapeHTML(c.name)}</h3>
-                  <p class="course-instructor"><i class="fa-solid fa-user-tie"></i> ${escapeHTML(c.instructor)}</p>
-                </div>
-                ${c.isCustom ? `
-                  <button class="btn btn-sm btn-danger-outline" data-delete-course="${c.id}" title="Remove custom course">
-                    <i class="fa-regular fa-trash-can"></i>
-                  </button>
-                ` : `
-                  <span class="badge-mini" style="font-size: 0.72rem; color: var(--text-faint);">Core Sem 1</span>
-                `}
-              </div>
-
-              <div class="progress-section">
-                <div class="progress-info">
-                  <span>Syllabus & Task Velocity</span>
-                  <span>${analytics.progress}%</span>
-                </div>
-                <div class="progress-bar-track">
-                  <div class="progress-bar-fill" style="width: ${analytics.progress}%;"></div>
+                  <div class="compact-title">${escapeHTML(ev.name)}</div>
+                  <div class="compact-course">${escapeHTML(ev.category)} • ${escapeHTML(ev.date)}</div>
                 </div>
               </div>
-
-              <div class="course-footer">
-                <span><i class="fa-solid fa-tasks"></i> ${analytics.completedTasks}/${analytics.totalTasks} Tasks Done</span>
-                <span><i class="fa-solid fa-shield-halved"></i> Active</span>
-              </div>
+              <span class="event-countdown-chip ${cd.type}">${cd.label}</span>
             </div>
           `;
         }).join('');
 
-        container.querySelectorAll('[data-delete-course]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const id = btn.getAttribute('data-delete-course');
-            CourseManager.deleteCourse(id);
-            showToast('Custom course removed');
+        dashEventsContainer.querySelectorAll('[data-celebrate-dash]').forEach(item => {
+          item.addEventListener('click', () => {
+            triggerConfetti();
+            showToast('Celebration cheer! Keep thriving 🎉', 'celebrate');
           });
         });
-      };
+      }
 
-      const courseForm = document.getElementById('courseForm');
-      document.getElementById('openAddCourseModalBtn').addEventListener('click', () => {
-        courseForm.reset();
-        openModal(courseModal);
+      // Urgent Tasks preview
+      const urgentTasks = TaskManager.getTasks()
+        .filter(t => !t.completed)
+        .sort((a, b) => (a.priority === 'HIGH' ? -1 : 1))
+        .slice(0, 4);
+
+      const urgentContainer = document.getElementById('dashboardUrgentTasksList');
+      if (urgentTasks.length === 0) {
+        urgentContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fa-solid fa-check-double"></i></div>
+            <p class="empty-state-title">You're all caught up 🎉</p>
+            <p class="empty-state-sub">No pending tasks. Create an assignment to track upcoming deadlines.</p>
+          </div>`;
+      } else {
+        urgentContainer.innerHTML = urgentTasks.map(t => `
+          <div class="task-compact-item">
+            <div class="compact-left">
+              <div class="custom-checkbox" data-complete-task="${t.id}">
+                <i class="fa-solid fa-check" style="display:none;"></i>
+              </div>
+              <div>
+                <div class="compact-title">${escapeHTML(t.title)}</div>
+                <div class="compact-course">${escapeHTML(t.course)} • Due ${escapeHTML(t.dueDate)}</div>
+              </div>
+            </div>
+            <span class="badge-priority ${t.priority.toLowerCase()}">${t.priority}</span>
+          </div>
+        `).join('');
+
+        urgentContainer.querySelectorAll('[data-complete-task]').forEach(box => {
+          box.addEventListener('click', async () => {
+            const id = box.getAttribute('data-complete-task');
+            await TaskManager.toggleTaskCompletion(id);
+            triggerConfetti();
+            showToast('Task completed 🎉', 'success');
+          });
+        });
+      }
+
+      renderActivityChart();
+    };
+
+    // Velocity Chart
+    const renderActivityChart = () => {
+      const chart = document.getElementById('weeklyActivityChart');
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const tasks = TaskManager.getTasks();
+      const completedTasks = tasks.filter(t => t.completed && t.completedAt);
+      const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+
+      completedTasks.forEach(t => {
+        try {
+          const date = new Date(t.completedAt);
+          const dayIdx = (date.getDay() + 6) % 7;
+          dayCounts[dayIdx]++;
+        } catch(e) {}
       });
 
-      courseForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('courseName').value;
-        const code = document.getElementById('courseCode').value;
-        const instructor = document.getElementById('courseInstructor').value;
-        const baseProgress = document.getElementById('courseBaseProgress').value;
+      const maxVal = Math.max(...dayCounts, 4);
 
-        CourseManager.addCourse({ name, code, instructor, baseProgress });
-        closeModal(courseModal);
-        showToast('Course added successfully ✓', 'success');
+      chart.innerHTML = days.map((day, idx) => {
+        const val = dayCounts[idx];
+        const heightPercent = val > 0 ? Math.max(12, Math.round((val / maxVal) * 100)) : 6;
+        return `
+          <div class="chart-column">
+            <span class="chart-value-hint">${val}</span>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar-fill" style="height: ${heightPercent}%"></div>
+            </div>
+            <span class="chart-label">${day}</span>
+          </div>
+        `;
+      }).join('');
+    };
+
+    // Tasks View
+    let currentTaskFilter = 'all';
+    let taskSearchTerm = '';
+    let taskCourseFilterVal = 'ALL';
+    let taskPriorityFilterVal = 'ALL';
+
+    const renderTasks = () => {
+      populateCourseDropdowns();
+      const tasks = TaskManager.getTasks();
+
+      const pendingCount = tasks.filter(t => !t.completed).length;
+      const completedCount = tasks.filter(t => t.completed).length;
+      document.getElementById('countAll').textContent = tasks.length;
+      document.getElementById('countPending').textContent = pendingCount;
+      document.getElementById('countCompleted').textContent = completedCount;
+
+      let filtered = tasks.filter(t => {
+        if (currentTaskFilter === 'pending' && t.completed) return false;
+        if (currentTaskFilter === 'completed' && !t.completed) return false;
+        if (taskSearchTerm && !t.title.toLowerCase().includes(taskSearchTerm.toLowerCase())) return false;
+        if (taskCourseFilterVal !== 'ALL' && t.course !== taskCourseFilterVal) return false;
+        if (taskPriorityFilterVal !== 'ALL' && t.priority !== taskPriorityFilterVal) return false;
+        return true;
       });
 
-      // RENDER: NOTES VIEW
-      let noteSearchQuery = '';
+      const container = document.getElementById('tasksListContainer');
 
-      const renderNotesView = () => {
-        const notes = NoteManager.getNotes();
-        const filtered = notes.filter(n => {
-          if (!noteSearchQuery) return true;
-          const q = noteSearchQuery.toLowerCase();
-          return n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q);
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fa-solid fa-list-check"></i></div>
+            <p class="empty-state-title">You're all caught up 🎉</p>
+            <p class="empty-state-sub">No pending tasks found. Click 'New Task' to schedule an assignment.</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const isUrgent = !t.completed && t.priority === 'HIGH';
+        return `
+          <div class="task-card-item ${t.completed ? 'completed' : ''}" data-task-id="${t.id}">
+            <div class="task-left-cluster">
+              <div class="custom-checkbox" data-action="toggle">
+                ${t.completed ? '<i class="fa-solid fa-check"></i>' : ''}
+              </div>
+              <div class="task-text-block">
+                <span class="task-text-title">${escapeHTML(t.title)}</span>
+                <div class="task-sub-meta">
+                  <span><i class="fa-solid fa-book"></i> ${escapeHTML(t.course)}</span>
+                  <span class="due-pill ${isUrgent ? 'urgent' : ''}">
+                    <i class="fa-regular fa-clock"></i> Due: ${escapeHTML(t.dueDate)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="task-right-actions">
+              <span class="badge-priority ${t.priority.toLowerCase()}">${t.priority}</span>
+              <button class="btn btn-sm btn-danger-outline" data-action="delete" title="Delete Task">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.task-card-item').forEach(card => {
+        const id = card.getAttribute('data-task-id');
+        card.querySelector('[data-action="toggle"]').addEventListener('click', async () => {
+          const updated = await TaskManager.toggleTaskCompletion(id);
+          if (updated && updated.completed) triggerConfetti();
+          showToast(updated.completed ? 'Task completed 🎉' : 'Task marked pending', 'success');
         });
 
-        const container = document.getElementById('notesListContainer');
+        card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+          await TaskManager.deleteTask(id);
+          showToast('Task removed from queue');
+        });
+      });
+    };
 
-        if (filtered.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-              <div class="empty-state-icon"><i class="fa-regular fa-note-sticky"></i></div>
-              <p class="empty-state-title">No notes yet</p>
-              <p class="empty-state-sub">Capture lecture takeaways, formulas, or project ideas.</p>
-            </div>`;
-          return;
-        }
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTaskFilter = tab.getAttribute('data-filter');
+        renderTasks();
+      });
+    });
 
-        container.innerHTML = filtered.map(n => `
-          <div class="note-card" data-note-id="${n.id}">
+    document.getElementById('taskSearchInput').addEventListener('input', (e) => {
+      taskSearchTerm = e.target.value.trim();
+      renderTasks();
+    });
+
+    document.getElementById('taskCourseFilter').addEventListener('change', (e) => {
+      taskCourseFilterVal = e.target.value;
+      renderTasks();
+    });
+
+    document.getElementById('taskPriorityFilter').addEventListener('change', (e) => {
+      taskPriorityFilterVal = e.target.value;
+      renderTasks();
+    });
+
+    const taskForm = document.getElementById('taskForm');
+    const triggerAddTaskModal = () => {
+      taskForm.reset();
+      populateCourseDropdowns();
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      document.getElementById('taskDueDate').value = d.toISOString().split('T')[0];
+      openModal(taskModal);
+    };
+
+    document.getElementById('openAddTaskModalBtn').addEventListener('click', triggerAddTaskModal);
+    document.getElementById('quickAddTaskBtn').addEventListener('click', triggerAddTaskModal);
+
+    taskForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('taskTitle').value;
+      const course = document.getElementById('taskCourse').value;
+      const dueDate = document.getElementById('taskDueDate').value;
+      const priority = document.getElementById('taskPriority').value;
+
+      await TaskManager.addTask({ title, course, dueDate, priority });
+      closeModal(taskModal);
+      showToast('Task added successfully ✓', 'success');
+    });
+
+    // Celebrations & Events View
+    const renderEventsView = () => {
+      const events = EventManager.getEvents();
+      const container = document.getElementById('eventsListContainer');
+
+      if (events.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon"><i class="fa-solid fa-champagne-glasses"></i></div>
+            <p class="empty-state-title">No celebrations scheduled</p>
+            <p class="empty-state-sub">Add your college fest, hackathons, sports days, or milestones!</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = events.map(ev => {
+        const cd = EventManager.getCountdownInfo(ev.date, ev.celebrated);
+        return `
+          <div class="event-card ${ev.celebrated ? 'celebrated' : ''}" data-event-card="${ev.id}">
             <div>
-              <h4 class="note-title">${escapeHTML(n.title)}</h4>
-              <p class="note-body">${escapeHTML(n.content)}</p>
+              <div class="event-card-top">
+                <div class="event-emoji-badge">${ev.emoji}</div>
+                <span class="event-category-tag">${escapeHTML(ev.category)}</span>
+              </div>
+
+              <h3 class="event-title">${escapeHTML(ev.name)}</h3>
+              <div class="event-date-row">
+                <i class="fa-regular fa-calendar"></i> ${escapeHTML(ev.date)}
+              </div>
+
+              ${ev.note ? `<div class="event-note">"${escapeHTML(ev.note)}"</div>` : ''}
             </div>
-            <div class="note-footer">
-              <span><i class="fa-regular fa-calendar"></i> ${escapeHTML(n.createdAt)}</span>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn btn-sm btn-outline" data-action="edit-note" title="Edit Note">
-                  <i class="fa-solid fa-pen"></i>
+
+            <div>
+              <div style="margin-bottom: 12px;">
+                <span class="event-countdown-chip ${cd.type}">${cd.label}</span>
+              </div>
+
+              <div class="event-actions">
+                <button class="btn btn-sm ${ev.celebrated ? 'btn-outline' : 'btn-celebrate'}" data-action="toggle-celebration">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> ${ev.celebrated ? 'Celebrated ✓' : 'Celebrate!'}
                 </button>
-                <button class="btn btn-sm btn-danger-outline" data-action="delete-note" title="Delete Note">
+                <button class="btn btn-sm btn-danger-outline" data-action="delete-event" title="Remove event">
                   <i class="fa-regular fa-trash-can"></i>
                 </button>
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+      }).join('');
 
-        container.querySelectorAll('.note-card').forEach(card => {
-          const id = card.getAttribute('data-note-id');
-          const noteItem = notes.find(n => n.id === id);
-
-          card.querySelector('[data-action="edit-note"]').addEventListener('click', () => {
-            document.getElementById('noteId').value = noteItem.id;
-            document.getElementById('noteTitle').value = noteItem.title;
-            document.getElementById('noteContent').value = noteItem.content;
-            document.getElementById('noteModalTitle').textContent = 'Edit Note';
-            openModal(noteModal);
-          });
-
-          card.querySelector('[data-action="delete-note"]').addEventListener('click', () => {
-            NoteManager.deleteNote(id);
-            showToast('Note deleted');
-          });
+      container.querySelectorAll('[data-event-card]').forEach(card => {
+        const id = card.getAttribute('data-event-card');
+        card.querySelector('[data-action="toggle-celebration"]').addEventListener('click', async () => {
+          const updated = await EventManager.toggleCelebrated(id);
+          if (updated && updated.celebrated) {
+            triggerConfetti();
+            showToast(`Hooray for ${updated.name}! 🎉`, 'celebrate');
+          } else {
+            showToast('Celebration reset');
+          }
         });
-      };
 
-      document.getElementById('noteSearchInput').addEventListener('input', (e) => {
-        noteSearchQuery = e.target.value.trim();
-        renderNotesView();
+        card.querySelector('[data-action="delete-event"]').addEventListener('click', async () => {
+          await EventManager.deleteEvent(id);
+          showToast('Event removed');
+        });
+      });
+    };
+
+    const eventForm = document.getElementById('eventForm');
+    const triggerAddEventModal = () => {
+      eventForm.reset();
+      const d = new Date();
+      d.setDate(d.getDate() + 7);
+      document.getElementById('eventDate').value = d.toISOString().split('T')[0];
+      openModal(eventModal);
+    };
+
+    document.getElementById('openAddEventModalBtn').addEventListener('click', triggerAddEventModal);
+    document.getElementById('dashAddCelebrationBtn').addEventListener('click', triggerAddEventModal);
+    document.getElementById('dashViewAllEventsBtn').addEventListener('click', () => switchView('events'));
+    document.getElementById('dashViewAllTasksBtn').addEventListener('click', () => switchView('tasks'));
+
+    eventForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('eventName').value;
+      const date = document.getElementById('eventDate').value;
+      const category = document.getElementById('eventCategory').value;
+      const emoji = document.getElementById('eventEmoji').value;
+      const note = document.getElementById('eventNote').value;
+
+      await EventManager.addEvent({ name, date, category, emoji, note });
+      closeModal(eventModal);
+      triggerConfetti();
+      showToast('Celebration event created! 🎉', 'celebrate');
+    });
+
+    // Courses View
+    const renderCoursesView = () => {
+      const courses = CourseManager.getAllCourses();
+      const container = document.getElementById('coursesListContainer');
+
+      container.innerHTML = courses.map(c => {
+        const analytics = CourseManager.getCourseAnalytics(c.name, c.baseProgress);
+        return `
+          <div class="course-card">
+            <div class="course-header-row">
+              <div>
+                <span class="course-code-tag">${escapeHTML(c.code)}</span>
+                <h3 class="course-title" style="margin-top: 6px;">${escapeHTML(c.name)}</h3>
+                <p class="course-instructor"><i class="fa-solid fa-user-tie"></i> ${escapeHTML(c.instructor)}</p>
+              </div>
+              ${c.isCustom ? `
+                <button class="btn btn-sm btn-danger-outline" data-delete-course="${c.id}" title="Remove custom course">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              ` : `
+                <span class="badge-mini" style="font-size: 0.7rem; color: var(--text-faint);"><i class="fa-solid fa-lock"></i> Sem 1 Core</span>
+              `}
+            </div>
+
+            <div class="progress-section">
+              <div class="progress-info">
+                <span>Syllabus & Task Velocity</span>
+                <span>${analytics.progress}%</span>
+              </div>
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill" style="width: ${analytics.progress}%;"></div>
+              </div>
+            </div>
+
+            <div class="course-footer">
+              <span><i class="fa-solid fa-tasks"></i> ${analytics.completedTasks}/${analytics.totalTasks} Tasks Done</span>
+              <span><i class="fa-solid fa-shield-halved"></i> Active</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-delete-course]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-delete-course');
+          await CourseManager.deleteCourse(id);
+          showToast('Course removed from your list');
+        });
+      });
+    };
+
+    const courseForm = document.getElementById('courseForm');
+    document.getElementById('openAddCourseModalBtn').addEventListener('click', () => {
+      courseForm.reset();
+      openModal(courseModal);
+    });
+
+    courseForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('courseName').value;
+      const code = document.getElementById('courseCode').value;
+      const instructor = document.getElementById('courseInstructor').value;
+      const baseProgress = document.getElementById('courseBaseProgress').value;
+
+      await CourseManager.addCourse({ name, code, instructor, baseProgress });
+      closeModal(courseModal);
+      showToast('Course added successfully ✓', 'success');
+    });
+
+    // Notes View
+    let noteSearchQuery = '';
+
+    const renderNotesView = () => {
+      const notes = NoteManager.getNotes();
+      const filtered = notes.filter(n => {
+        if (!noteSearchQuery) return true;
+        const q = noteSearchQuery.toLowerCase();
+        return n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q);
       });
 
-      const noteForm = document.getElementById('noteForm');
-      const triggerAddNoteModal = () => {
-        noteForm.reset();
-        document.getElementById('noteId').value = '';
-        document.getElementById('noteModalTitle').textContent = 'Create Note';
-        openModal(noteModal);
-      };
+      const container = document.getElementById('notesListContainer');
 
-      document.getElementById('openAddNoteModalBtn').addEventListener('click', triggerAddNoteModal);
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon"><i class="fa-regular fa-note-sticky"></i></div>
+            <p class="empty-state-title">No notes yet</p>
+            <p class="empty-state-sub">Capture lecture takeaways, formulas, or project ideas.</p>
+          </div>`;
+        return;
+      }
 
-      noteForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = document.getElementById('noteId').value;
-        const title = document.getElementById('noteTitle').value;
-        const content = document.getElementById('noteContent').value;
+      container.innerHTML = filtered.map(n => `
+        <div class="note-card" data-note-id="${n.id}">
+          <div>
+            <h4 class="note-title">${escapeHTML(n.title)}</h4>
+            <p class="note-body">${escapeHTML(n.content)}</p>
+          </div>
+          <div class="note-footer">
+            <span><i class="fa-regular fa-calendar"></i> ${escapeHTML(n.createdAt)}</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm btn-outline" data-action="edit-note" title="Edit Note">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="btn btn-sm btn-danger-outline" data-action="delete-note" title="Delete Note">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
 
-        if (id) {
-          NoteManager.updateNote(id, { title, content });
-          showToast('Changes saved ✓');
-        } else {
-          NoteManager.addNote({ title, content });
-          showToast('Note created successfully ✓', 'success');
-        }
+      container.querySelectorAll('.note-card').forEach(card => {
+        const id = card.getAttribute('data-note-id');
+        const noteItem = notes.find(n => n.id === id);
 
-        closeModal(noteModal);
+        card.querySelector('[data-action="edit-note"]').addEventListener('click', () => {
+          document.getElementById('noteId').value = noteItem.id;
+          document.getElementById('noteTitle').value = noteItem.title;
+          document.getElementById('noteContent').value = noteItem.content;
+          document.getElementById('noteModalTitle').textContent = 'Edit Note';
+          openModal(noteModal);
+        });
+
+        card.querySelector('[data-action="delete-note"]').addEventListener('click', async () => {
+          await NoteManager.deleteNote(id);
+          showToast('Note deleted');
+        });
       });
+    };
 
-      // Synchronize all views upon change
-      const refreshAllViews = () => {
-        renderDashboard();
-        renderTasks();
-        renderEventsView();
-        renderCoursesView();
-        renderNotesView();
-      };
+    document.getElementById('noteSearchInput').addEventListener('input', (e) => {
+      noteSearchQuery = e.target.value.trim();
+      renderNotesView();
+    });
 
-      window.addEventListener('campusos:tasks-updated', refreshAllViews);
-      window.addEventListener('campusos:events-updated', refreshAllViews);
-      window.addEventListener('campusos:courses-updated', refreshAllViews);
-      window.addEventListener('campusos:notes-updated', refreshAllViews);
+    const noteForm = document.getElementById('noteForm');
+    const triggerAddNoteModal = () => {
+      noteForm.reset();
+      document.getElementById('noteId').value = '';
+      document.getElementById('noteModalTitle').textContent = 'Create Note';
+      openModal(noteModal);
+    };
 
-      // Initial Session Boot Check
+    document.getElementById('openAddNoteModalBtn').addEventListener('click', triggerAddNoteModal);
+
+    noteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('noteId').value;
+      const title = document.getElementById('noteTitle').value;
+      const content = document.getElementById('noteContent').value;
+
+      if (id) {
+        await NoteManager.updateNote(id, { title, content });
+        showToast('Changes saved ✓');
+      } else {
+        await NoteManager.addNote({ title, content });
+        showToast('Note created successfully ✓', 'success');
+      }
+
+      closeModal(noteModal);
+    });
+
+    const refreshAllViews = () => {
+      renderDashboard();
+      renderTasks();
+      renderEventsView();
+      renderCoursesView();
+      renderNotesView();
+    };
+
+    // Event Listeners for Cross-Module State Sync
+    window.addEventListener('campusos:tasks-updated', refreshAllViews);
+    window.addEventListener('campusos:events-updated', refreshAllViews);
+    window.addEventListener('campusos:courses-updated', refreshAllViews);
+    window.addEventListener('campusos:notes-updated', refreshAllViews);
+    window.addEventListener('campusos:cloud-synced', refreshAllViews);
+
+    // Initial Startup Boot
+    (async () => {
+      // 1. Initialize Cloud DB schemas on startup
+      await initDatabaseSchema();
+
+      // 2. Check active user session
       const activeStudent = StorageEngine.getActiveUser();
       if (!activeStudent) {
         renderAccountPills();
@@ -3188,8 +3577,10 @@
       } else {
         syncStudentProfileUI(activeStudent);
         refreshAllViews();
+        // Fetch freshest cloud records in background
+        syncCloudUserData(activeStudent.id);
       }
-    });
+    })();
   </script>
 </body>
 </html>
